@@ -145,7 +145,7 @@ public class Game implements KeyListener, WindowListener {
 
 
 	public void mainLoop() {
-
+		
 		while (running) {
 			cycleTime = System.currentTimeMillis();
 			if(!paused && !game_over)
