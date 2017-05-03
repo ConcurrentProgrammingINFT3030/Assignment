@@ -4,7 +4,18 @@ package SnakeGame;
  * A client that connects to a server
  * @author CQ
  */
-public class Client {
+public class Client implements Runnable{
+	
+	@Override
+	public void run() {
+		try {
+				System.out.println("Test running");
+	         }
+	      catch (Exception e) {
+	         System.out.println("Thread interrupted.");
+	      }
+	      System.out.println("Thread exiting.");
+	}
 	/**
 	 * Client's ID
 	 */
@@ -18,4 +29,6 @@ public class Client {
 	public String toString() {
 		return "Client:" + Id;
 	}
+
+	
 }
