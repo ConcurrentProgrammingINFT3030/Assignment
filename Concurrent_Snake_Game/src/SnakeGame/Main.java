@@ -9,7 +9,7 @@ public class Main {
 		Server s = new Server();
 		s.addUsers();
 
-		for (int i = 1; i < 3; i++) {
+		for (int i = 1; i < 100; i++) {
 			//For the moment we're only connecting 2 players
 			Client c = new Client(i);
 			s.connect(c);
