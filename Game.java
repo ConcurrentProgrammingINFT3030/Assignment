@@ -31,8 +31,78 @@ import SnakeGame.Entity.Type;
  *
  * @author Group
  */
-public class Game implements KeyListener, WindowListener {
+public class Game implements KeyListener, WindowListener, Runnable {
 
+	public static void main(String[] args) {
+		Game game = new Game();
+		game.init();
+		
+		//mainloop is now a thread, implemented in run()
+		//game.mainLoop();
+		Thread theGame = new Thread(game);
+		theGame.start();
+	}
+	
+	public void createSnake(){
+		playerCount++;
+		Snake player = new Snake(this,"Player"+playerCount);
+		Thread playerT = new Thread(player);
+		playerT.start();
+		playerList.add(player);
+		playerTList.add(playerT);
+		System.out.println("Created new Snake"+player.toString());
+	}
+	
+	
+	@Override
+	public void run() {
+		try{
+			while (running) {
+				cycleTime = System.currentTimeMillis();
+				if(!paused && !game_over)
+				{
+					int count = 0;
+					for(Snake i: playerList){
+						if(count ==0){
+							P1_direction = P1_next_direction;
+							moveSnakeNEW(i,P1_direction,P1_next_direction);
+						} else if(count == 1){
+							P2_direction = P2_next_direction;
+							moveSnakeNEW(i,P2_direction,P2_next_direction);
+						} else if(count == 2){
+							P3_direction = P3_next_direction;
+							moveSnakeNEW(i,P3_direction,P3_next_direction);
+						} else if(count == 3){
+							P4_direction = P4_next_direction;
+							moveSnakeNEW(i,P4_direction,P4_next_direction);
+						} else {
+							//NON CONTROLLABLE PLAYERS
+							//TODO: make randomMovement more natural
+							
+							//randomMovement(i);
+						}
+						count++;  	
+					}
+				}
+				//System.out.println("Render game is looped");
+				renderGameNEW();
+				cycleTime = System.currentTimeMillis() - cycleTime;
+				sleepTime = speed - cycleTime;
+				if (sleepTime < 0)
+					sleepTime = 0;
+				try {
+					Thread.sleep(sleepTime);
+				} catch (InterruptedException ex) {
+					Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
+							ex);
+				}
+			}
+		}
+		catch(Exception e){
+			
+		}
+		
+	}
 
 	public final static int UP = 0;
 	public final static int DOWN = 1;
@@ -53,6 +123,10 @@ public class Game implements KeyListener, WindowListener {
 
 
 	private ArrayList<Snake> playerList = new ArrayList<>();
+	
+	//Array of threads
+	private ArrayList<Thread> playerTList = new ArrayList<>();
+	
 	private int playerCount = 0;
 
 	private Entity[][] gameBoard = null;
@@ -99,11 +173,7 @@ public class Game implements KeyListener, WindowListener {
 	 * @param args
 	 *            the command line arguments
 	 */
-	public static void main(String[] args) {
-		Game game = new Game();
-		game.init();
-		game.mainLoop();
-	}
+	
 
 	public Game() {
 		super();
@@ -146,49 +216,7 @@ public class Game implements KeyListener, WindowListener {
 
 	public void mainLoop() {
 		
-		while (running) {
-			cycleTime = System.currentTimeMillis();
-			if(!paused && !game_over)
-			{
-				//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				//!!!!!!!!!!!!!!!! MAKE THIS CONCURRENT !!!!!!!!!!!!!!!!!!!!!
-				//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				int count = 0;
-				for(Snake i: playerList){
-					if(count ==0){
-						P1_direction = P1_next_direction;
-						moveSnakeNEW(i,P1_direction,P1_next_direction);
-					} else if(count == 1){
-						P2_direction = P2_next_direction;
-						moveSnakeNEW(i,P2_direction,P2_next_direction);
-					} else if(count == 2){
-						P3_direction = P3_next_direction;
-						moveSnakeNEW(i,P3_direction,P3_next_direction);
-					} else if(count == 3){
-						P4_direction = P4_next_direction;
-						moveSnakeNEW(i,P4_direction,P4_next_direction);
-					} else {
-						//NON CONTROLLABLE PLAYERS
-						//TODO: make randomMovement more natural
-						
-						//randomMovement(i);
-					}
-					count++;  	
-				}
-			}
-			//System.out.println("Render game is looped");
-			renderGameNEW();
-			cycleTime = System.currentTimeMillis() - cycleTime;
-			sleepTime = speed - cycleTime;
-			if (sleepTime < 0)
-				sleepTime = 0;
-			try {
-				Thread.sleep(sleepTime);
-			} catch (InterruptedException ex) {
-				Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
-						ex);
-			}
-		}
+		
 	}
 
 	private void initGameNEW(){
@@ -198,6 +226,7 @@ public class Game implements KeyListener, WindowListener {
 				gameBoard[i][j] = new Entity(this);
 			}
 		}
+		createSnake();
 		for(int i = 0; i< totalFood;i++){
 			createFood();
 		}
@@ -205,12 +234,7 @@ public class Game implements KeyListener, WindowListener {
 	}
 
 
-	public void createSnake(){
-		playerCount++;
-		Snake player = new Snake(this,"Player"+playerCount);
-		playerList.add(player);
-		System.out.println("Created new Snake"+player.toString());
-	}
+	
 
 
 	private void renderGameNEW() {
@@ -449,8 +473,6 @@ public class Game implements KeyListener, WindowListener {
 			break;
 		}
 
-
-
 		//set current head pos of snake
 		int tempx = snake.getPosition()[0][0];
 		int tempy = snake.getPosition()[0][1];
@@ -677,4 +699,6 @@ public class Game implements KeyListener, WindowListener {
 	public void windowDeiconified(WindowEvent we) {}
 	public void windowActivated(WindowEvent we) {}
 	public void windowDeactivated(WindowEvent we) {}
+
+
 }
