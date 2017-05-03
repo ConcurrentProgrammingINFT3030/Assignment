@@ -1,6 +1,30 @@
 # Multiplayer Snake Game
 *PLEASE CREATE A NEW BRANCH FOR EXPERIMENTING*
 
+##LTSA MODEL
+```markdown
+//SOMEWHAT OF AN LTSA
+//Direction moving
+SNAKE = (up -> SNAKEUP | down -> SNAKEDOWN | left -> SNAKELEFT | right -> SNAKERIGHT),
+SNAKEUP = (left -> SNAKELEFT | right -> SNAKERIGHT),
+SNAKEDOWN  = (left -> SNAKELEFT | right -> SNAKERIGHT),
+SNAKELEFT = (up -> SNAKEUP | down -> SNAKEDOWN),
+SNAKERIGHT= (up -> SNAKEUP | down -> SNAKEDOWN).
+
+THREAD = (wait -> BLOCKED | unblockAll -> THREAD),
+BLOCKED = (unblockAll -> move -> THREAD).
+
+||PLAYER = (SNAKE||THREAD/{up/move,down/move,left/move,right/move}).
+
+SCHEDULER = RUNNINGALL,
+RUNNINGALL = (snakeA.wait -> SNAKEA |snakeB.wait -> SNAKEB |{snakeA,snakeB}.notifyAll -> RUNNINGALL),
+SNAKEA = (snakeB.wait -> SNAKEAB |snakeB.notifyAll -> unblockAll -> RUNNINGALL),
+SNAKEB = (snakeA.wait -> SNAKEAB |snakeA.notifyAll -> unblockAll -> RUNNINGALL),
+SNAKEAB = (unblockAll -> RUNNINGALL). // Should not happen
+
+set Threads = {snakeA,snakeB} //the set of thread identifiers
+||WAITSET = (Threads:PLAYER/{unblockAll/Threads.unblockAll}	|| SCHEDULER).
+```
 
 ### ----------------
 
