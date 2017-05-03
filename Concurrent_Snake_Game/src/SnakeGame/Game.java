@@ -54,7 +54,7 @@ public class Game implements KeyListener, WindowListener {
 	private ArrayList<Snake> playerList = new ArrayList<>();
 	
 	//Array of threads
-	private ArrayList<Thread> playerTList = new ArrayList<>();
+	//private ArrayList<Thread> playerTList = new ArrayList<>();
 	
 	private int playerCount = 0;
 
@@ -90,12 +90,12 @@ public class Game implements KeyListener, WindowListener {
 	}*/
 	
 	public void createSnake(){
+		//playerList holds current players for the gameBoard to see
 		playerCount++;
 		Snake player = new Snake(this,"Player"+playerCount);
-		//Thread playerT = new Thread(player);
-		//playerT.start();
+		
 		playerList.add(player);
-		//playerTList.add(playerT);
+		
 		System.out.println("Created new Snake"+player.toString());
 	}
 	
@@ -163,23 +163,16 @@ public class Game implements KeyListener, WindowListener {
 		return gameSize;
 	}
 
-
-
-	/**
-	 * @param args
-	 *            the command line arguments
-	 */
 	
 
 	public Game() {
 		super();
 		frame = new Frame();
 		canvas = new Canvas();
+		
+		//Creating new gameboard of entities (Snake, Food, Empty)
+		gameBoard = new Entity[gameSize][gameSize]; 
 
-		//grid = new int[gameSize][gameSize];
-		gameBoard = new Entity[gameSize][gameSize];
-
-		//snake = new int[gameSize * gameSize][2];
 	}
 
 	public void init() {
@@ -216,17 +209,22 @@ public class Game implements KeyListener, WindowListener {
 			if(!paused && !game_over)
 			{
 				int count = 0;
+				//First 4 snakes in playerList can be controlled individually
 				for(Snake i: playerList){
 					if(count ==0){
+						//Directions for arrow keys
 						P1_direction = P1_next_direction;
 						moveSnakeNEW(i,P1_direction,P1_next_direction);
 					} else if(count == 1){
+						//Directions for WASD
 						P2_direction = P2_next_direction;
 						moveSnakeNEW(i,P2_direction,P2_next_direction);
 					} else if(count == 2){
+						//Directions for NUMPAD
 						P3_direction = P3_next_direction;
 						moveSnakeNEW(i,P3_direction,P3_next_direction);
 					} else if(count == 3){
+						//Directions for IJKL
 						P4_direction = P4_next_direction;
 						moveSnakeNEW(i,P4_direction,P4_next_direction);
 					} else {
@@ -258,11 +256,13 @@ public class Game implements KeyListener, WindowListener {
 		// Create an empty board
 		for(int i = 0; i < gameSize; i++){
 			for (int j = 0; j < gameSize; j++) {
+				//Filling the gameBoard with entities (Empty spaces)
 				gameBoard[i][j] = new Entity(this);
 			}
 		}
-		createSnake();
+		//createSnake();
 		for(int i = 0; i< totalFood;i++){
+			//Creating food
 			createFood();
 		}
 
@@ -588,6 +588,7 @@ public class Game implements KeyListener, WindowListener {
 
 
 	private void createFood() {
+		//Find random empty space on gameBoard and put food there
 		int x = (int) (Math.random() * 1000) % gameSize;
 		int y = (int) (Math.random() * 1000) % gameSize;
 		if (gameBoard[x][y].getType() == Type.EMPTY) {
@@ -705,7 +706,8 @@ public class Game implements KeyListener, WindowListener {
 
 		case KeyEvent.VK_INSERT:
 			if(!game_over){}
-			//Adds a uncontrollable snake to the board at a random position
+			System.out.println("Game-Debug: creating non-cliented snake");
+			//Adds a snake to the board at a random position
 			//Snake snake = new Snake();
 			createSnake();
 			break;
