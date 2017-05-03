@@ -198,7 +198,6 @@ public class Game implements KeyListener, WindowListener {
 				gameBoard[i][j] = new Entity(this);
 			}
 		}
-		createSnake();
 		for(int i = 0; i< totalFood;i++){
 			createFood();
 		}

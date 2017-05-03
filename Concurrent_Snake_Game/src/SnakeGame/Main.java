@@ -1,12 +1,20 @@
 package SnakeGame;
 
+/**
+ * Application entry point
+ * @author CQ
+ */
 public class Main {
 	public static void main(String[] args) {
 		Server s = new Server();
-		Client c = new Client("player 2");
-		
-		s.connect(c);
-		
+        s.addUsers();
+
+		for (int i = 1; i < 3; i++) {
+		    //For the moment we're only connecting 2 players
+		    Client c = new Client(i);
+		    s.connect(c);
+        }
+
 		s.run();
 	}
 }
