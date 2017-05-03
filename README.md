@@ -6,7 +6,6 @@
 
 ##TODO:
 ```markdown
-- Make the program act more like a server-client system
 - Implement concurrency
 - Create a scoring system
 - add delay to uncontrollable snakes random movement
@@ -15,6 +14,8 @@
 
 ##DONE:
 ```markdown
+- Make the program act more like a server-client system
+- Client auth
 - Create snake game
 - Ability to add multipule snakes that all have the same functionality
 - Make 4 of the snakes controllable
