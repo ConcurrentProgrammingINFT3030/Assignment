@@ -1,7 +1,7 @@
 # Multiplayer Snake Game
 *PLEASE CREATE A NEW BRANCH FOR EXPERIMENTING*
 
-##LTSA MODEL
+## LTSA MODEL
 ```markdown
 //SOMEWHAT OF AN LTSA
 //Direction moving
@@ -28,7 +28,7 @@ set Threads = {snakeA,snakeB} //the set of thread identifiers
 
 ### ----------------
 
-##TODO:
+## TODO:
 ```markdown
 - Implement concurrency
 - Create a scoring system
@@ -36,7 +36,7 @@ set Threads = {snakeA,snakeB} //the set of thread identifiers
 ```
 
 
-##DONE:
+## DONE:
 ```markdown
 - Make the program act more like a server-client system
 - Client auth
