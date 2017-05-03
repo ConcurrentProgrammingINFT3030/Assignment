@@ -10,61 +10,61 @@ import java.util.concurrent.ConcurrentNavigableMap;
  * @author CQ
  */
 public class Server {
-    private DB db;
-    private ConcurrentNavigableMap<Integer, String> map;
+	private DB db;
+	private ConcurrentNavigableMap<Integer, String> map;
 	private Game game;
 	private boolean running;
 	
 	public Server() {
-	    db = DBMaker.newFileDB(new File("snakes"))
-                    .closeOnJvmShutdown()
-                    .make();
-	    map = db.getTreeMap("authentication");
+		db = DBMaker.newFileDB(new File("snakes"))
+					.closeOnJvmShutdown()
+					.make();
+		map = db.getTreeMap("authentication");
 
 		game = new Game();
 		game.init();
 	}
 
-    /**
-     * Adds 104 users to the database, if they don't already exist
-     */
+	/**
+	 * Adds 104 users to the database, if they don't already exist
+	 */
 	public void addUsers(){
-	    for (int i = 1; i < 105; i++) {
-	        if (!map.containsKey(i)) {
-                map.put(i, "Client:"+i);
-            }
-        }
+		for (int i = 1; i < 105; i++) {
+			if (!map.containsKey(i)) {
+				map.put(i, "Client:"+i);
+			}
+		}
 
-        db.commit();
-    }
+		db.commit();
+	}
 	
 	/**
 	 * Connects a client to the server
 	 * @param client the client to connect to the server
 	 */
 	public void connect(Client client) {
-	    //This thread uses an anonymous runnable to authenticate the client
+		//This thread uses an anonymous runnable to authenticate the client
 		Thread t = new Thread(() -> authenticate(client));
-        t.run();
+		t.run();
 	}
 
-    /**
-     * Authenticates the client against the db before connecting them to the game
-     * @param client the client to authenticate
-     */
+	/**
+	 * Authenticates the client against the db before connecting them to the game
+	 * @param client the client to authenticate
+	 */
 	private void authenticate(Client client) {
-        //Authenticate against DB.
-        //The clients username is their ID (1-104)
-        //and their password is "Client:{ID}"
-        if (map.get(client.Id).equals(client.toString())) {
-            //Concurrency is required here. The player thread (Thread.currentThread())
-            //could be passed to createSnake
-            game.createSnake();
-        }
-        else {
-            System.out.println("UNREGISTERED PLAYER ID: " + client.Id);
-        }
-    }
+		//Authenticate against DB.
+		//The clients username is their ID (1-104)
+		//and their password is "Client:{ID}"
+		if (map.get(client.Id).equals(client.toString())) {
+			//Concurrency is required here. The player thread (Thread.currentThread())
+			//could be passed to createSnake
+			game.createSnake();
+		}
+		else {
+			System.out.println("UNREGISTERED PLAYER ID: " + client.Id);
+		}
+	}
 	
 	/**
 	 * Runs the server. This method is blocking
