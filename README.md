@@ -23,7 +23,7 @@ SNAKEB = (snakeA.wait -> SNAKEAB |snakeA.notifyAll -> unblockAll -> RUNNINGALL),
 SNAKEAB = (unblockAll -> RUNNINGALL). // Should not happen
 
 set Threads = {snakeA,snakeB} //the set of thread identifiers
-||WAITSET = (Threads:PLAYER/{unblockAll/Threads.unblockAll}	|| SCHEDULER).
+||WAITSET = (Threads:PLAYER/{unblockAll/Threads.unblockAll} || SCHEDULER).
 ```
 
 ### ----------------
