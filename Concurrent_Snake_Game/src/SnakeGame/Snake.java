@@ -118,8 +118,7 @@ public class Snake extends Entity implements Runnable{
 		String returnString = "ID: "+ id+" HeadLocation: ("+position[0][0]+","+position[0][1]+") size: "+size;
 		return returnString;
 	}
-
-
-	
-
+	public void Entity() {
+		type = Type.EMPTY;
+	}
 }

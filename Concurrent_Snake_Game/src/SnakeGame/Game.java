@@ -49,9 +49,16 @@ public class Game implements KeyListener, WindowListener {
 
 	private int P4_direction = -1;
 	private int P4_next_direction = -1;
+	
+	private int bot_direction = -1;
+	private int bot_next_direction = -1;
+	
+	private long autoTime = 0;
 
 
 	private ArrayList<Snake> playerList = new ArrayList<>();
+	private ArrayList<Integer> directionList = new ArrayList<>();
+	private ArrayList<Integer> next_directionList = new ArrayList<>();
 	
 	//Array of threads
 	//private ArrayList<Thread> playerTList = new ArrayList<>();
@@ -95,6 +102,8 @@ public class Game implements KeyListener, WindowListener {
 		Snake player = new Snake(this,"Player"+playerCount);
 		
 		playerList.add(player);
+		directionList.add(bot_direction);
+		next_directionList.add(bot_next_direction);
 		
 		System.out.println("Created new Snake"+player.toString());
 	}
@@ -211,27 +220,31 @@ public class Game implements KeyListener, WindowListener {
 				int count = 0;
 				//First 4 snakes in playerList can be controlled individually
 				for(Snake i: playerList){
-					if(count ==0){
+					if(count ==0 && i != null){
 						//Directions for arrow keys
 						P1_direction = P1_next_direction;
 						moveSnakeNEW(i,P1_direction,P1_next_direction);
-					} else if(count == 1){
+					} else if(count == 1 && i != null){
 						//Directions for WASD
 						P2_direction = P2_next_direction;
 						moveSnakeNEW(i,P2_direction,P2_next_direction);
-					} else if(count == 2){
+					} else if(count == 2 && i != null){
 						//Directions for NUMPAD
 						P3_direction = P3_next_direction;
 						moveSnakeNEW(i,P3_direction,P3_next_direction);
-					} else if(count == 3){
+					} else if(count == 3 && i != null){
 						//Directions for IJKL
 						P4_direction = P4_next_direction;
 						moveSnakeNEW(i,P4_direction,P4_next_direction);
-					} else {
+					} else if (count > 3 && i != null) {
 						//NON CONTROLLABLE PLAYERS
 						//TODO: make randomMovement more natural
 						
 						//randomMovement(i);
+						
+						randomDirection(count);
+						directionList.set(count, next_directionList.get(count));
+						moveSnakeNEW(playerList.get(count), directionList.get(count), next_directionList.get(count));
 					}
 					count++;  	
 				}
@@ -537,17 +550,54 @@ public class Game implements KeyListener, WindowListener {
 		
 		//run into self
 		if ((gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].getType() == Type.SNAKE)) {
-			gameOver();
 			if(snake.getID().equals(gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].getID())){
 				//ran into itself
+				int index = -1;
+				for (int i = 0; i < playerList.size(); i++) {
+					if (playerList.get(i) != null) {
+						if (playerList.get(i).equals(snake)) {
+							index = i;
+						}
+					}
+				}
+				if (index != -1) {
+					playerList.get(index).Entity();
+					playerList.set(index, null);
+				}
 				System.out.println("Snake Collision! ("+snake.toString()+") ran into itself!");
 			} else {
 				//ran into another snake
+				int index1 = -1;
+				int index2 = -1;
+				for (int i = 0; i < playerList.size(); i++) {
+					if (playerList.get(i) != null) {
+						if (playerList.get(i).equals(snake)) {
+							index1 = i;
+						}
+						if (playerList.get(i).equals(gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]])) {
+							index2 = i;
+						}
+					}
+				}
+				if (index1 != -1 && index2 != -1) {
+					playerList.get(index1).Entity();
+					playerList.get(index2).Entity();
+					playerList.set(index1, null);
+					playerList.set(index2, null);
+				}
 				System.out.println("Snake Collision! ("+snake.toString()+") ran into ("+ gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].toString()+")!");
 			}
+			boolean over = true;
+			for (Snake i : playerList) {
+				if (i != null) {
+					over = false;
+				}
+			}
+			if (over) {
+				gameOver();
+			}
 			
-			
-			return;
+			//return;
 		}
 
 		gameBoard[tempx][tempy] = new Entity(this);
@@ -714,6 +764,36 @@ public class Game implements KeyListener, WindowListener {
 		default:
 			// Unsupported key
 			break;
+		}
+	}
+	
+	private void randomDirection(int i) {
+		autoTime += 1;
+		if (autoTime > 10) {
+			Random rand = new Random();
+			int value = rand.nextInt(4);
+			
+			if (value == 0) {
+				if (directionList.get(i) != DOWN) {
+					next_directionList.set(i, UP);
+				}
+			}
+			else if (value == 1) {
+				if (directionList.get(i) != UP) {
+					next_directionList.set(i, DOWN);
+				}
+			}
+			else if (value == 2) {
+				if (directionList.get(i) != RIGHT) {
+					next_directionList.set(i, LEFT);
+				}
+			}
+			else if (value == 3) {
+				if (directionList.get(i) != LEFT) {
+					next_directionList.set(i, RIGHT);
+				}
+			}
+			autoTime = 0;
 		}
 	}
 
