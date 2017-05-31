@@ -13,8 +13,17 @@ import SnakeGame.Entity.Type;
  * @author JM
  *
  */
-public class Snake extends Entity {
+public class Snake extends Entity implements Runnable{
 	
+	@Override
+	public void run() {
+		try{
+			System.out.println("Running");
+		}
+		catch(Exception e){
+			System.out.println("Error");
+		}
+	}
 	
 	private int[][] position = null;
 	private int size = 0;
@@ -62,6 +71,8 @@ public class Snake extends Entity {
         game.placeEntity(this, x, y);
 	}
 	
+	
+	
 	public String getID(){
 		return id;
 	}
@@ -107,5 +118,7 @@ public class Snake extends Entity {
 		String returnString = "ID: "+ id+" HeadLocation: ("+position[0][0]+","+position[0][1]+") size: "+size;
 		return returnString;
 	}
-
+	public void Entity() {
+		type = Type.EMPTY;
+	}
 }
