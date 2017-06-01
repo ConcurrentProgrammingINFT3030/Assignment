@@ -18,12 +18,9 @@ public class Server implements Runnable{
 	private boolean running;
 
 	private BoundedBuffer buffer;
-	public Server(BoundedBuffer b) 
-	{
-		buffer = b;
-	}
 
-	public Server() {
+	public Server(BoundedBuffer b) {
+		buffer = b;
 		db = DBMaker.newFileDB(new File("snakes"))
 				.closeOnJvmShutdown()
 				.make();
@@ -107,15 +104,32 @@ public class Server implements Runnable{
 						game.moveSnakeNEW(i,game.P4_direction,game.P4_next_direction);
 					} else if (count > 3 && i != null) {
 
+						/*
+						randomDirection(count);
+						directionList.set(count, next_directionList.get(count));
+						moveSnakeNEW(playerList.get(count), directionList.get(count), next_directionList.get(count));
+						*/
 
 						game.randomDirection(count);
-
-						//game.next_directionList.set(count, buffer.take());
-
+						//game.randomMovement(game.playerList.get(count));
+						game.directionList.set(count, buffer.take());
+						//game.next_directionList.set(count, game.next_directionList.get(count));
+						
 						game.moveSnakeNEW(game.playerList.get(count), game.directionList.get(count), game.next_directionList.get(count));
 					}
 					count+=1;
 					
+				}
+				game.renderGameNEW();
+				game.cycleTime = System.currentTimeMillis() - game.cycleTime;
+				game.sleepTime = game.speed - game.cycleTime;
+				if (game.sleepTime < 0)
+					game.sleepTime = 0;
+				try {
+					Thread.sleep(game.sleepTime);
+				} catch (InterruptedException ex) {
+					Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
+							ex);
 				}
 				
 				
@@ -123,19 +137,6 @@ public class Server implements Runnable{
 			catch (RuntimeException e) {
 				System.out.println("Thread interrupted.");
 			}
-			game.renderGameNEW();
-			game.cycleTime = System.currentTimeMillis() - game.cycleTime;
-			game.sleepTime = game.speed - game.cycleTime;
-			if (game.sleepTime < 0)
-				game.sleepTime = 0;
-			try {
-				Thread.sleep(game.sleepTime);
-			} catch (InterruptedException ex) {
-				Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
-						ex);
-			}
-
-			
 		}
 		
 	}
