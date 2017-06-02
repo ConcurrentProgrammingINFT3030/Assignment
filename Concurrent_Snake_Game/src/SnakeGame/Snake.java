@@ -32,11 +32,17 @@ public class Snake extends Entity implements Runnable{
 	private Type type;
 	private Game game;
 	private String id;
+
+	private Client client;
+
+	public Client getClient() {
+		return client;
+	}
 	
-	
-	public Snake(Game game, String id){
+	public Snake(Game game, String id, Client client){
 		this.game = game;
 		this.id = id;
+		this.client = client;
 		type = Type.SNAKE;
 		size = 1;
 		grow = 0;

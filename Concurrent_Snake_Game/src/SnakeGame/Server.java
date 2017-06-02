@@ -49,8 +49,15 @@ public class Server implements Runnable{
 	 */
 	public void connect(Client client) {
 		//This thread uses an anonymous runnable to authenticate the client
+		//() -> authenticate(client) is equivalent to:
+		/* new Runnable() {
+			@Override
+			public void run() {
+				authenticate(client);
+			}
+		}*/
 		Thread t = new Thread(() -> authenticate(client));
-		t.run();
+		t.start();
 	}
 
 	/**
@@ -62,9 +69,7 @@ public class Server implements Runnable{
 		//The clients username is their ID (1-104)
 		//and their password is "Client:{ID}"
 		if (map.get(client.Id).equals(client.toString())) {
-			//Concurrency is required here. The player thread (Thread.currentThread())
-			//could be passed to createSnake
-			game.createSnake();
+			game.createSnake(client);
 		}
 		else {
 			System.out.println("UNREGISTERED PLAYER ID: " + client.Id);

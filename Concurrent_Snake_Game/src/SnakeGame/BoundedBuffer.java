@@ -20,13 +20,14 @@ public class BoundedBuffer {
 		System.out.println("Attempting Append");
 		while (Count == size) 
 		{
-			System.out.println("Waiting");
+			System.out.println("Waiting for append");
 			try 
 			{
 				this.wait();
 			} 
 			catch (InterruptedException e) 
 			{
+				System.out.println("Append interrupted");
 			}
 			
 		}
@@ -43,7 +44,7 @@ public class BoundedBuffer {
 		System.out.println("Attempting take");
 		while (Count==0) 
 		{
-			System.out.println("Waiting");
+			System.out.println("Waiting for take");
 			try 
 			{ 
 				wait();

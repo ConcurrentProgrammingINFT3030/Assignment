@@ -69,7 +69,7 @@ public class Game implements KeyListener, WindowListener {
 	private Entity[][] gameBoard = null;
 	private int height = 1000;
 	private int width = 1000;
-	private int gameSize = 80;
+	private int gameSize = 100;
 	private int totalFood = 5;
 
 	public long speed = 80;
@@ -97,10 +97,10 @@ public class Game implements KeyListener, WindowListener {
 		theGame.start();
 	}*/
 	
-	public void createSnake(){
+	public void createSnake(Client client){
 		//playerList holds current players for the gameBoard to see
 		playerCount++;
-		Snake player = new Snake(this,"Player"+playerCount);
+		Snake player = new Snake(this,"Player"+playerCount, client);
 		
 		playerList.add(player);
 		directionList.add(bot_direction);
@@ -517,7 +517,7 @@ public class Game implements KeyListener, WindowListener {
 				}
 				if (index != -1) {
 					playerList.get(index).Entity();
-					playerList.set(index, null);
+					playerList.get(index).getClient().active = false;
 				}
 				System.out.println("Snake Collision! ("+snake.toString()+") ran into itself!");
 			} else {
@@ -536,9 +536,9 @@ public class Game implements KeyListener, WindowListener {
 				}
 				if (index1 != -1 && index2 != -1) {
 					playerList.get(index1).Entity();
+					playerList.get(index1).getClient().active = false;
 					playerList.get(index2).Entity();
-					playerList.set(index1, null);
-					playerList.set(index2, null);
+					playerList.get(index2).getClient().active = false;
 				}
 				System.out.println("Snake Collision! ("+snake.toString()+") ran into ("+ gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].toString()+")!");
 			}
@@ -709,13 +709,13 @@ public class Game implements KeyListener, WindowListener {
 				paused = true;
 			break;
 
-		case KeyEvent.VK_INSERT:
+		/*case KeyEvent.VK_INSERT:
 			if(!game_over){}
 			System.out.println("Game-Debug: creating non-cliented snake");
 			//Adds a snake to the board at a random position
 			//Snake snake = new Snake();
 			createSnake();
-			break;
+			break;*/
 		default:
 			// Unsupported key
 			break;

@@ -20,6 +20,8 @@ public class Client implements Runnable{
 	 */
 	public int Id;
 	public boolean active = true;
+
+	private int lastDir = -1;
 	/**
 	 * Client's buffer
 	 */
@@ -54,16 +56,19 @@ public class Client implements Runnable{
 				{
 					//System.out.println("Attempting random direction append");
 					Random randomDirection = new Random();
-					int value = randomDirection.nextInt(4);
+					int random = randomDirection.nextInt(4);
+					while (random == lastDir) {
+						random = randomDirection.nextInt(4);
+					}
+					lastDir = random;
 					
-					buffer.append(value);
+					buffer.append(random);
+					Thread.sleep(10);
 				}
-				
 			}
 		      catch (Exception e) {
-		         System.out.println("Client Thread Interruped.");
+		         System.out.println("Client Thread Interrupted.");
 		      }
-		      
 		}
 		System.out.println("Thread exiting.");
 		
