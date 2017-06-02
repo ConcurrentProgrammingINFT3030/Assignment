@@ -84,23 +84,12 @@ public class Game implements KeyListener, WindowListener {
 	public long sleepTime = 0;
 	private int bonusTime = 0;
 	private boolean running = true;
-	
-	
-	/*
-	public static void main(String[] args) {
-		Game game = new Game();
-		game.init();
-		
-		//mainloop is now a thread, implemented in run()
-		//game.mainLoop();
-		Thread theGame = new Thread(game);
-		theGame.start();
-	}*/
+
 	
 	public void createSnake(Client client){
 		//playerList holds current players for the gameBoard to see
 		playerCount++;
-		Snake player = new Snake(this,"Player"+playerCount, client);
+		Snake player = new Snake(this,"Player"+client.Id, client);
 		
 		playerList.add(player);
 		directionList.add(bot_direction);
@@ -517,7 +506,7 @@ public class Game implements KeyListener, WindowListener {
 				}
 				if (index != -1) {
 					playerList.get(index).Entity();
-					playerList.get(index).getClient().active = false;
+					playerList.get(index).getClient().setActive(false);
 				}
 				System.out.println("Snake Collision! ("+snake.toString()+") ran into itself!");
 			} else {
@@ -536,9 +525,9 @@ public class Game implements KeyListener, WindowListener {
 				}
 				if (index1 != -1 && index2 != -1) {
 					playerList.get(index1).Entity();
-					playerList.get(index1).getClient().active = false;
+					playerList.get(index1).getClient().setActive(false);
 					playerList.get(index2).Entity();
-					playerList.get(index2).getClient().active = false;
+					playerList.get(index2).getClient().setActive(false);
 				}
 				System.out.println("Snake Collision! ("+snake.toString()+") ran into ("+ gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].toString()+")!");
 			}

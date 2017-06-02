@@ -19,22 +19,23 @@ public class Client implements Runnable{
 	 * Client's ID
 	 */
 	public int Id;
-	public boolean active = true;
+	private boolean active;
 
 	private int lastDir = -1;
 	/**
 	 * Client's buffer
 	 */
 	private BoundedBuffer buffer;
-	public Client(int id)
-	{
-		this.Id = id;
-	}
 	public Client(BoundedBuffer b, int id) 
 	{
         buffer = b;
         this.Id = id;
+        active = true;
     }
+
+    public void setActive(boolean active) {
+		this.active = active;
+	}
 
 	@Override
 	public void run() {
