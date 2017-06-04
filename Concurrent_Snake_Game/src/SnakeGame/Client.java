@@ -12,61 +12,85 @@ import java.util.Random;
  * @author CQ, RT
  */
 public class Client implements Runnable{
-	
 
-	 
 	/**
 	 * Client's ID
 	 */
 	public int Id;
-	public boolean active = true;
+	private boolean active;
+	private int nextDirection;
+
+	private int lastDir = -1;
 	/**
 	 * Client's buffer
 	 */
 	private BoundedBuffer buffer;
-	public Client(int id)
-	{
-		this.Id = id;
-	}
 	public Client(BoundedBuffer b, int id) 
 	{
         buffer = b;
         this.Id = id;
+        active = true;
     }
+
+	public void setDirection(int theDirection)
+	{
+		this.nextDirection = theDirection;
+	}
+	public int getDirection()
+	{
+		return nextDirection;
+	}
+    public synchronized void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public synchronized boolean getActive() {
+		return active;
+	}
 
 	@Override
 	public void run() {
 		
-		while (active == true)
+		while (active)
 		{
 			try {
-				
-				//System.out.println("Client" + Thread.currentThread().getName() + " running");
-				
-				//for the players
-				if (Id < 5)
+				//Player moves are input from game -> server
+				if (Id <= 3)
 				{
-					//player input
+					//buffer.append(new MoveData(nextDirection,Id));
 				}
 				
-				//for the non-players
+				//AI Moves randomly generated
 				else if (Id > 4)
 				{
-					//System.out.println("Attempting random direction append");
 					Random randomDirection = new Random();
-					int value = randomDirection.nextInt(4);
+					int random = randomDirection.nextInt(4);
+					boolean even = random % 2 == 0;
+					//An even direction + 1 = the opposite direction.
+					//An odd direction - 1 = the opposite direction.
+					//AI snakes shouldn't be able to do a 180, so this should ensure they
+					//can only turn at most 90degrees
+					while ((even && random + 1 == lastDir) || (!even && random - 1 == lastDir)) {
+						random = randomDirection.nextInt(4);
+						even = random % 2 == 0;
+					}
+
+					lastDir = random;
+
+					//buffer.append(random);
+					if (buffer.ready())
+					{
+						buffer.append(new MoveData(random,Id));
+					}
 					
-					buffer.append(value);
+					Thread.sleep(50);
 				}
-				
 			}
-		      catch (Exception e) {
-		         System.out.println("Client Thread Interruped.");
-		      }
-		      
+			catch (Exception e) {
+		         System.out.println("Client Thread Interrupted.");
+			}
 		}
 		System.out.println("Thread exiting.");
-		
 	}
 
 
@@ -74,6 +98,4 @@ public class Client implements Runnable{
 	public String toString() {
 		return "Client:" + Id;
 	}
-
-	
 }

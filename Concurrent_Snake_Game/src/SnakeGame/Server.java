@@ -3,7 +3,7 @@ package SnakeGame;
 import org.mapdb.*;
 
 import java.io.File;
-import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,11 +15,12 @@ public class Server implements Runnable{
 	private DB db;
 	private ConcurrentNavigableMap<Integer, String> map;
 	public Game game;
-	private boolean running;
 
+	private ExecutorService executor;
 	private BoundedBuffer buffer;
 
-	public Server(BoundedBuffer b) {
+	public Server(BoundedBuffer b, ExecutorService executor) {
+		this.executor = executor;
 		buffer = b;
 		db = DBMaker.newFileDB(new File("snakes"))
 				.closeOnJvmShutdown()
@@ -47,80 +48,98 @@ public class Server implements Runnable{
 	 * Connects a client to the server
 	 * @param client the client to connect to the server
 	 */
-	public void connect(Client client) {
-		//This thread uses an anonymous runnable to authenticate the client
-		Thread t = new Thread(() -> authenticate(client));
-		t.run();
+	public boolean connect(Client client) {
+		//This thread uses an anonymous Callable<boolean> to authenticate the client
+		//We use a future to retrieve the result once the thread finishes
+		Future<Boolean> future = executor.submit(() -> authenticate(client));
+		try {
+			return future.get();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
 	 * Authenticates the client against the db before connecting them to the game
 	 * @param client the client to authenticate
 	 */
-	private void authenticate(Client client) {
+	private boolean authenticate(Client client) {
 		//Authenticate against DB.
 		//The clients username is their ID (1-104)
 		//and their password is "Client:{ID}"
 		if (map.get(client.Id).equals(client.toString())) {
-			//Concurrency is required here. The player thread (Thread.currentThread())
-			//could be passed to createSnake
-			game.createSnake();
+			game.createSnake(client);
+			return true;
 		}
-		else {
-			System.out.println("UNREGISTERED PLAYER ID: " + client.Id);
-		}
+
+		System.out.println("UNREGISTERED PLAYER ID: " + client.Id);
+		return false;
 	}
 
 	/**
 	 * Runs the server. This method is blocking
 	 */
 	public void run() {
-		//This should be a blocking call so the main thread does not exit
-		//game.mainLoop is already blocking, but we should change this for concurrent-ness
-		//game.mainLoop();
-		while (game.paused == false && game.game_over == false)
+		//This is the main loop of the server.
+		//It blocks the main thread and processes the game until it is exited
+		while (!game.paused && !game.game_over)
 		{
 			try
 			{
 				//System.out.println("Running");
 				game.cycleTime = System.currentTimeMillis();
 				int count = 0;
-				for(Snake i: game.playerList){
-					if(count == 0 && i != null){
+				
+				//append the player moves to the buffer
+				buffer.append(new MoveData(game.P1_next_direction, 1));
+				//buffer.append(new MoveData(game.P2_next_direction, 2));
+				//buffer.append(new MoveData(game.P3_next_direction, 3));
+				//buffer.append(new MoveData(game.P4_next_direction, 4));
+				
+				for(Snake snake: game.playerList) {
+					if (!snake.getClient().getActive()) {
+						continue;
+					}
+
+					
+					//MoveData playerMove = buffer.take();
+					/*
+					if (playerMove.getId() == 1)
+					{
+						game.P1_direction = playerMove.getDirection();
+						game.moveSnake(game.playerList.get(1),game.P1_direction,playerMove.getDirection());
+					}
+					*/
+					if(snake.getClient().Id == 1){
 						//Directions for arrow keys
 						game.P1_direction = game.P1_next_direction;
-						game.moveSnakeNEW(i,game.P1_direction,game.P1_next_direction);
-					} else if(count == 1 && i != null){
+						game.moveSnake(snake,game.P1_direction,game.P1_next_direction);
+					} else if(snake.getClient().Id == 2){
 						//Directions for WASD
 						game.P2_direction = game.P2_next_direction;
-						game.moveSnakeNEW(i,game.P2_direction,game.P2_next_direction);
-					} else if(count == 2 && i != null){
+						game.moveSnake(snake,game.P2_direction,game.P2_next_direction);
+					} else if(snake.getClient().Id == 3){
 						//Directions for NUMPAD
 						game.P3_direction = game.P3_next_direction;
-						game.moveSnakeNEW(i,game.P3_direction,game.P3_next_direction);
-					} else if(count == 3 && i != null){
+						game.moveSnake(snake,game.P3_direction,game.P3_next_direction);
+					} else if(snake.getClient().Id == 4){
 						//Directions for IJKL
 						game.P4_direction = game.P4_next_direction;
-						game.moveSnakeNEW(i,game.P4_direction,game.P4_next_direction);
-					} else if (count > 3 && i != null) {
-
-						/*
-						randomDirection(count);
-						directionList.set(count, next_directionList.get(count));
-						moveSnakeNEW(playerList.get(count), directionList.get(count), next_directionList.get(count));
-						*/
-
-						game.randomDirection(count);
-						//game.randomMovement(game.playerList.get(count));
-						game.directionList.set(count, buffer.take());
-						//game.next_directionList.set(count, game.next_directionList.get(count));
+						game.moveSnake(snake,game.P4_direction,game.P4_next_direction);
+					} else if (snake.getClient().Id > 4) {
+						MoveData client = buffer.take();
 						
-						game.moveSnakeNEW(game.playerList.get(count), game.directionList.get(count), game.next_directionList.get(count));
+						//System.out.println("Moving: " + (game.playerList.get(client.getId()) + "CLient: " + client.getId()));
+						game.randomDirection(client.getId());
+						game.directionList.set(count, client.getDirection());
+						
+						game.moveSnake(game.playerList.get(client.getId()), game.directionList.get(client.getId()), game.next_directionList.get(client.getId()));
 					}
 					count+=1;
-					
 				}
-				game.renderGameNEW();
+				game.renderGame();
 				game.cycleTime = System.currentTimeMillis() - game.cycleTime;
 				game.sleepTime = game.speed - game.cycleTime;
 				if (game.sleepTime < 0)
@@ -131,8 +150,6 @@ public class Server implements Runnable{
 					Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
 							ex);
 				}
-				
-				
 			}	
 			catch (RuntimeException e) {
 				System.out.println("Thread interrupted.");

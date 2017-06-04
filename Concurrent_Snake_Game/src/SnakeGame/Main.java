@@ -8,33 +8,27 @@ import java.util.concurrent.Executors;
  * @author CQ, RT
  */
 public class Main {
+	public static int serverMax = 104;
 	public static void main(String[] args) {
 		
-		ExecutorService executor = Executors.newFixedThreadPool(105);
-		BoundedBuffer buffer = new BoundedBuffer(100);
-		Server s = new Server(buffer);
+		
+		ExecutorService executor = Executors.newFixedThreadPool(serverMax);
+		BoundedBuffer buffer = new BoundedBuffer(serverMax);
+		Server s = new Server(buffer, executor);
 		
 		s.addUsers();
 
-		for (int i = 1; i < 10; i++) {
+		executor.execute(s);
+
+		for (int i = 0; i < serverMax; i++) {
 			Client c = new Client(buffer, i);
-			s.connect(c);
-			
-			Runnable client = new Client(buffer, i);
-			executor.execute(client);
-			
-			//replaced by threadpool
-			//Thread c1 = new Thread(c);
-			//c1.start();
-			
+			if (s.connect(c)) {
+				executor.execute(c);
+			}
 		}
 
-		Thread server = new Thread(s);
-		server.start();
-		 while (!executor.isTerminated()) {
-			 
-		 }  
+		executor.shutdown();
 		  
-	        System.out.println("Finished all threads"); 
+		System.out.println("Finished all threads");
 	}
 }
