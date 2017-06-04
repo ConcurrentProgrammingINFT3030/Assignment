@@ -18,6 +18,7 @@ public class Client implements Runnable{
 	 */
 	public int Id;
 	private boolean active;
+	private int nextDirection;
 
 	private int lastDir = -1;
 	/**
@@ -31,6 +32,14 @@ public class Client implements Runnable{
         active = true;
     }
 
+	public void setDirection(int theDirection)
+	{
+		this.nextDirection = theDirection;
+	}
+	public int getDirection()
+	{
+		return nextDirection;
+	}
     public synchronized void setActive(boolean active) {
 		this.active = active;
 	}
@@ -45,8 +54,14 @@ public class Client implements Runnable{
 		while (active)
 		{
 			try {
-				//Only AIs need to produce random input
-				if (Id > 4)
+				//Player moves are input from game -> server
+				if (Id <= 3)
+				{
+					//buffer.append(new MoveData(nextDirection,Id));
+				}
+				
+				//AI Moves randomly generated
+				else if (Id > 4)
 				{
 					Random randomDirection = new Random();
 					int random = randomDirection.nextInt(4);
@@ -62,8 +77,13 @@ public class Client implements Runnable{
 
 					lastDir = random;
 
-					buffer.append(random);
-					Thread.sleep(100);
+					//buffer.append(random);
+					if (buffer.ready())
+					{
+						buffer.append(new MoveData(random,Id));
+					}
+					
+					Thread.sleep(50);
 				}
 			}
 			catch (Exception e) {

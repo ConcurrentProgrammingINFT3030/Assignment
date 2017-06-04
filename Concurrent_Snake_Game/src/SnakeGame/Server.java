@@ -35,7 +35,7 @@ public class Server implements Runnable{
 	 * Adds 104 users to the database, if they don't already exist
 	 */
 	public void addUsers(){
-		for (int i = 0; i < 104; i++) {
+		for (int i = 0; i < 105; i++) {
 			if (!map.containsKey(i)) {
 				map.put(i, "Client:"+i);
 			}
@@ -67,7 +67,7 @@ public class Server implements Runnable{
 	 */
 	private boolean authenticate(Client client) {
 		//Authenticate against DB.
-		//The clients username is their ID (0-103)
+		//The clients username is their ID (1-104)
 		//and their password is "Client:{ID}"
 		if (map.get(client.Id).equals(client.toString())) {
 			game.createSnake(client);
@@ -91,32 +91,36 @@ public class Server implements Runnable{
 				//System.out.println("Running");
 				game.cycleTime = System.currentTimeMillis();
 				int count = 0;
+				
 				for(Snake snake: game.playerList) {
 					if (!snake.getClient().getActive()) {
 						continue;
 					}
 
-					if(snake.getClient().Id == 0){
+					if(snake.getClient().Id == 1){
 						//Directions for arrow keys
 						game.P1_direction = game.P1_next_direction;
 						game.moveSnake(snake,game.P1_direction,game.P1_next_direction);
-					} else if(snake.getClient().Id == 1){
+					} else if(snake.getClient().Id == 2){
 						//Directions for WASD
 						game.P2_direction = game.P2_next_direction;
 						game.moveSnake(snake,game.P2_direction,game.P2_next_direction);
-					} else if(snake.getClient().Id == 2){
+					} else if(snake.getClient().Id == 3){
 						//Directions for NUMPAD
 						game.P3_direction = game.P3_next_direction;
 						game.moveSnake(snake,game.P3_direction,game.P3_next_direction);
-					} else if(snake.getClient().Id == 3){
+					} else if(snake.getClient().Id == 4){
 						//Directions for IJKL
 						game.P4_direction = game.P4_next_direction;
 						game.moveSnake(snake,game.P4_direction,game.P4_next_direction);
-					} else if (snake.getClient().Id > 3) {
-						game.randomDirection(count);
-						game.directionList.set(count, buffer.take());
+					} else if (snake.getClient().Id > 4) {
+						MoveData client = buffer.take();
 						
-						game.moveSnake(snake, game.directionList.get(count), game.next_directionList.get(count));
+						//System.out.println("Moving: " + (game.playerList.get(client.getId()) + "CLient: " + client.getId()));
+						game.randomDirection(client.getId());
+						game.directionList.set(count, client.getDirection());
+						
+						game.moveSnake(game.playerList.get(client.getId()), game.directionList.get(client.getId()), game.next_directionList.get(client.getId()));
 					}
 					count+=1;
 				}

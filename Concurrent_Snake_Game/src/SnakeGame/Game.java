@@ -56,7 +56,7 @@ public class Game implements KeyListener, WindowListener {
 	private int height = 1000;
 	private int width = 1000;
 	private int gameSize = 100;
-	private int totalFood = 5;
+	private int totalFood = 30;
 
 	public long speed = 80;
 	private Frame frame = null;
