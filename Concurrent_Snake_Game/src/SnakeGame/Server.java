@@ -35,7 +35,7 @@ public class Server implements Runnable{
 	 * Adds 104 users to the database, if they don't already exist
 	 */
 	public void addUsers(){
-		for (int i = 1; i < 105; i++) {
+		for (int i = 0; i < 104; i++) {
 			if (!map.containsKey(i)) {
 				map.put(i, "Client:"+i);
 			}
@@ -67,7 +67,7 @@ public class Server implements Runnable{
 	 */
 	private boolean authenticate(Client client) {
 		//Authenticate against DB.
-		//The clients username is their ID (1-104)
+		//The clients username is their ID (0-103)
 		//and their password is "Client:{ID}"
 		if (map.get(client.Id).equals(client.toString())) {
 			game.createSnake(client);

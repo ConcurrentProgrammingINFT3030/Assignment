@@ -25,14 +25,12 @@ public class BoundedBuffer {
 		{
 			try 
 			{
-				System.out.println("Waiting for append");
 				this.wait(100);
 			} 
 			catch (InterruptedException e) 
 			{
 			}
 		}
-		System.out.println("Appending");
 		B[InPtr] = value;
 		//System.out.println("                      "+Thread.currentThread().getName()+" added "+value+" at "+InPtr+" Count was= " +Count);
 
@@ -50,11 +48,9 @@ public class BoundedBuffer {
 		{
 			try 
 			{
-				System.out.println("Waiting for take");
 				this.wait(100);
 			} catch (InterruptedException e) {}
 		}
-		System.out.println("Taking");
 		int direction = B[OutPtr];
 		//System.out.println("                      "+Thread.currentThread().getName()+" removed "+direction+" at "+OutPtr+" Count was= "+Count);
 		OutPtr = (OutPtr+1) % size;
