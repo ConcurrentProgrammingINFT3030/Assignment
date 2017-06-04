@@ -4,7 +4,6 @@ package SnakeGame;
  * Original Created by https://code.google.com/p/java-snake/source/browse/trunk/java-snake/src/snake/Main.java
  */
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -12,7 +11,6 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -22,8 +20,6 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import SnakeGame.Entity.Type;
 
@@ -38,127 +34,52 @@ public class Game implements KeyListener, WindowListener {
 	public final static int LEFT = 2;
 	public final static int RIGHT = 3;
 
-	private int P1_direction = -1;
-	private int P1_next_direction = -1;
+	public int P1_direction = -1;
+	public int P1_next_direction = -1;
 
-	private int P2_direction = -1;
-	private int P2_next_direction = -1;
+	public int P2_direction = -1;
+	public int P2_next_direction = -1;
 
-	private int P3_direction = -1;
-	private int P3_next_direction = -1;
+	public int P3_direction = -1;
+	public int P3_next_direction = -1;
 
-	private int P4_direction = -1;
-	private int P4_next_direction = -1;
-	
-	private int bot_direction = -1;
-	private int bot_next_direction = -1;
+	public int P4_direction = -1;
+	public int P4_next_direction = -1;
 	
 	private long autoTime = 0;
 
-
-	private ArrayList<Snake> playerList = new ArrayList<>();
-	private ArrayList<Integer> directionList = new ArrayList<>();
-	private ArrayList<Integer> next_directionList = new ArrayList<>();
-	
-	//Array of threads
-	//private ArrayList<Thread> playerTList = new ArrayList<>();
-	
-	private int playerCount = 0;
+	ArrayList<Snake> playerList = new ArrayList<>();
+	ArrayList<Integer> directionList = new ArrayList<>();
+	ArrayList<Integer> next_directionList = new ArrayList<>();
 
 	private Entity[][] gameBoard = null;
 	private int height = 1000;
 	private int width = 1000;
-	private int gameSize = 80;
+	private int gameSize = 100;
 	private int totalFood = 5;
 
-	private long speed = 80;
+	public long speed = 80;
 	private Frame frame = null;
 	private Canvas canvas = null;
 	private Graphics graph = null;
 	private BufferStrategy strategy = null;
-	private boolean game_over = false;
-	private boolean paused = false;
+	public boolean game_over = false;
+	public boolean paused = false;
 
-	private long cycleTime = 0;
-	private long sleepTime = 0;
-	private int bonusTime = 0;
-	private boolean running = true;
+	public long cycleTime = 0;
+	public long sleepTime = 0;
+
 	
-	
-	/*
-	public static void main(String[] args) {
-		Game game = new Game();
-		game.init();
-		
-		//mainloop is now a thread, implemented in run()
-		//game.mainLoop();
-		Thread theGame = new Thread(game);
-		theGame.start();
-	}*/
-	
-	public void createSnake(){
+	public void createSnake(Client client) {
 		//playerList holds current players for the gameBoard to see
-		playerCount++;
-		Snake player = new Snake(this,"Player"+playerCount);
-		
+		Snake player = new Snake(this, "Player" + client.Id, client);
+
 		playerList.add(player);
-		directionList.add(bot_direction);
-		next_directionList.add(bot_next_direction);
-		
-		System.out.println("Created new Snake"+player.toString());
+		directionList.add(-1);
+		next_directionList.add(-1);
+
+		System.out.println("Created new Snake" + player.toString());
 	}
-	
-	/*
-	@Override
-	public void run() {
-		try{
-			while (running) {
-				cycleTime = System.currentTimeMillis();
-				if(!paused && !game_over)
-				{
-					int count = 0;
-					for(Snake i: playerList){
-						if(count ==0){
-							P1_direction = P1_next_direction;
-							moveSnakeNEW(i,P1_direction,P1_next_direction);
-						} else if(count == 1){
-							P2_direction = P2_next_direction;
-							moveSnakeNEW(i,P2_direction,P2_next_direction);
-						} else if(count == 2){
-							P3_direction = P3_next_direction;
-							moveSnakeNEW(i,P3_direction,P3_next_direction);
-						} else if(count == 3){
-							P4_direction = P4_next_direction;
-							moveSnakeNEW(i,P4_direction,P4_next_direction);
-						} else {
-							//NON CONTROLLABLE PLAYERS
-							//TODO: make randomMovement more natural
-							
-							//randomMovement(i);
-						}
-						count++;  	
-					}
-				}
-				//System.out.println("Render game is looped");
-				renderGameNEW();
-				cycleTime = System.currentTimeMillis() - cycleTime;
-				sleepTime = speed - cycleTime;
-				if (sleepTime < 0)
-					sleepTime = 0;
-				try {
-					Thread.sleep(sleepTime);
-				} catch (InterruptedException ex) {
-					Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
-							ex);
-				}
-			}
-		}
-		catch(Exception e){
-			
-		}
-		
-	}
-	*/
 
 	public Entity[][] getGameBoard() {
 		return gameBoard;
@@ -171,8 +92,6 @@ public class Game implements KeyListener, WindowListener {
 	public int getGameSize() {
 		return gameSize;
 	}
-
-	
 
 	public Game() {
 		super();
@@ -206,66 +125,12 @@ public class Game implements KeyListener, WindowListener {
 		strategy = canvas.getBufferStrategy();
 		graph = strategy.getDrawGraphics();
 
-		initGameNEW();
+		initGame();
 
-		renderGameNEW();
+		renderGame();
 	}
 
-
-	public void mainLoop() {
-		while (running) {
-			cycleTime = System.currentTimeMillis();
-			if(!paused && !game_over)
-			{
-				int count = 0;
-				//First 4 snakes in playerList can be controlled individually
-				for(Snake i: playerList){
-					if(count ==0 && i != null){
-						//Directions for arrow keys
-						P1_direction = P1_next_direction;
-						moveSnakeNEW(i,P1_direction,P1_next_direction);
-					} else if(count == 1 && i != null){
-						//Directions for WASD
-						P2_direction = P2_next_direction;
-						moveSnakeNEW(i,P2_direction,P2_next_direction);
-					} else if(count == 2 && i != null){
-						//Directions for NUMPAD
-						P3_direction = P3_next_direction;
-						moveSnakeNEW(i,P3_direction,P3_next_direction);
-					} else if(count == 3 && i != null){
-						//Directions for IJKL
-						P4_direction = P4_next_direction;
-						moveSnakeNEW(i,P4_direction,P4_next_direction);
-					} else if (count > 3 && i != null) {
-						//NON CONTROLLABLE PLAYERS
-						//TODO: make randomMovement more natural
-						
-						//randomMovement(i);
-						
-						randomDirection(count);
-						directionList.set(count, next_directionList.get(count));
-						moveSnakeNEW(playerList.get(count), directionList.get(count), next_directionList.get(count));
-					}
-					count++;  	
-				}
-			}
-			//System.out.println("Render game is looped");
-			renderGameNEW();
-			cycleTime = System.currentTimeMillis() - cycleTime;
-			sleepTime = speed - cycleTime;
-			if (sleepTime < 0)
-				sleepTime = 0;
-			try {
-				Thread.sleep(sleepTime);
-			} catch (InterruptedException ex) {
-				Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
-						ex);
-			}
-		}
-		
-	}
-
-	private void initGameNEW(){
+	private void initGame(){
 		// Create an empty board
 		for(int i = 0; i < gameSize; i++){
 			for (int j = 0; j < gameSize; j++) {
@@ -281,9 +146,7 @@ public class Game implements KeyListener, WindowListener {
 
 	}
 
-
-
-	private void renderGameNEW() {
+	public void renderGame() {
 		int gridUnit = height / gameSize;
 		canvas.paint(graph);
 
@@ -349,146 +212,13 @@ public class Game implements KeyListener, WindowListener {
 
 	}
 
-	
-	//TODO: create a scoring system for multiple snakes
-	/*
-	private int getScore() {
-		int score = 0;
-		for (int i = 0; i < gameSize * gameSize; i++) {
-			if ((snake[i][0] < 0) || (snake[i][1] < 0)) {
-				break;
-			}
-			score++;
-		}
-		return score;
-	}
-	*/
-
-	/**this method simulates random movement for the uncontrollable snakes
-	 * 
-	 * 
-	 */
-	public void randomMovement(Snake snake){
-		
-		//TODO: Make movement more natural
-		
-		int ymove =0;
-		int xmove =0;
-		int randomNum = ThreadLocalRandom.current().nextInt(0, 3 + 1);
-		switch (randomNum) {
-		case 0:
-			xmove = 0;
-			ymove = -1;
-			break;
-		case 1:
-			xmove = 0;
-			ymove = 1;
-			break;
-		case 2:
-			xmove = 1;
-			ymove = 0;
-			break;
-		case 3:
-			xmove = -1;
-			ymove = 0;
-			break;
-		}
-
-		int tempx = snake.getPosition()[0][0];
-		int tempy = snake.getPosition()[0][1];
-
-
-		int fut_x = snake.getPosition()[0][0] + xmove;
-		int fut_y = snake.getPosition()[0][1] + ymove;
-
-
-		if(fut_x < 0)
-			fut_x = gameSize - 1;
-		if(fut_y < 0)
-			fut_y = gameSize - 1;
-		if(fut_x >= gameSize)
-			fut_x = 0;
-		if(fut_y >= gameSize)
-			fut_y = 0;
-
-		//Food pickup
-		if(gameBoard[fut_x][fut_y].getType()==Type.FOOD){
-			snake.setGrow(snake.getGrow()+1);
-			createFood();
-		}
-
-
-		snake.setPositionX(0, fut_x);
-		snake.setPositionY(0, fut_y);
-		
-		//run into self
-		/*
-		if ((gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].getType() == Type.SNAKE)) {
-			gameOver();
-			if(snake.getID().equals(gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].getID())){
-				//ran into itself
-				System.out.println("Snake Collision! ("+snake.toString()+") ran into itself!");
-			} else {
-				//ran into another snake
-				System.out.println("Snake Collision! ("+snake.toString()+") ran into ("+ gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].toString()+")!");
-			}
-			return;
-		}
-		*/
-		
-		gameBoard[tempx][tempy] = new Entity(this);
-
-		int snakex, snakey, i;
-
-		for (i = 1; i < gameSize * gameSize; i++) {
-			if ((snake.getPosition()[i][0] < 0) || (snake.getPosition()[i][1] < 0)) {
-				break;
-			}
-			gameBoard[snake.getPosition()[i][0]][snake.getPosition()[i][1]] = new Entity(this);
-			snakex = snake.getPosition()[i][0];
-			snakey = snake.getPosition()[i][1];
-			snake.setPositionX(i, tempx);
-			snake.setPositionY(i, tempy);
-			tempx = snakex;
-			tempy = snakey;
-		}
-
-		gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]] = snake;
-		for (i = 1; i < gameSize * gameSize; i++) {
-			if ((snake.getPosition()[i][0] < 0) || (snake.getPosition()[i][1] < 0)) {
-				break;
-			}
-			gameBoard[snake.getPosition()[i][0]][snake.getPosition()[i][1]] = snake;
-		}
-
-
-
-		if (snake.getGrow() > 0) {
-			snake.incrementSize();
-			snake.setPositionX(i, tempx);
-			snake.setPositionY(i, tempy);
-			gameBoard[snake.getPosition()[i][0]][snake.getPosition()[i][1]] = snake;
-			snake.setGrow(snake.getGrow()-1);
-		}
-
-
-
-	}
-
-
-
-
 	/**
 	 * 
 	 * @param snake: the snake to move
 	 * @param direction current moveing direction
 	 * @param next_direction next moving direction
 	 */
-	private void moveSnakeNEW(Snake snake, int direction, int next_direction) {
-
-		//Implement for 4 players
-
-		//direction = next_direction;
+	public void moveSnake(Snake snake, int direction, int next_direction) {
 
 		if(direction < 0) {
 			return;
@@ -537,67 +267,55 @@ public class Game implements KeyListener, WindowListener {
 		if(fut_y >= gameSize)
 			fut_y = 0;
 
-
 		//Food pickup
 		if(gameBoard[fut_x][fut_y].getType()==Type.FOOD){
 			snake.setGrow(snake.getGrow()+1);
 			createFood();
 		}
 
-
 		snake.setPositionX(0, fut_x);
 		snake.setPositionY(0, fut_y);
-		
-		//run into self
-		if ((gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].getType() == Type.SNAKE)) {
-			if(snake.getID().equals(gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].getID())){
-				//ran into itself
-				int index = -1;
-				for (int i = 0; i < playerList.size(); i++) {
-					if (playerList.get(i) != null) {
-						if (playerList.get(i).equals(snake)) {
-							index = i;
-						}
-					}
+
+		//At this point the gameBoard hasn't been updated to hold the position of the moved snake,
+		//so we can check if it has collided with anything.
+
+		//This is the entity at the snake's new position
+		Entity ent = gameBoard[fut_x][fut_y];
+		if (ent.getType() == Type.SNAKE) {
+			Snake snek = (Snake)ent;
+			//Only check collisions on active snakes
+			if (snek.getClient().getActive()) {
+				if (snake.getID().equals(snek.getID())) {
+					//if the entity at the snake's new position is a snake with the same ID as our snake,
+					//our snake ran into itself so it needs to die
+					snek.getClient().setActive(false);
+					snek.Entity();
+
+					System.out.println("Snake Collision! (" + snake.toString() + ") ran into itself!");
+				} else {
+					//if the snakes have different IDs, our snake ran into a different snake,
+					//so now they both die. Good work snake.
+					snake.getClient().setActive(false);
+					snake.Entity();
+					snek.getClient().setActive(false);
+					snek.Entity();
+					System.out.println("Snake Collision! (" + snake.toString() + ") ran into (" + snek.toString() + ")!");
 				}
-				if (index != -1) {
-					playerList.get(index).Entity();
-					playerList.set(index, null);
-				}
-				System.out.println("Snake Collision! ("+snake.toString()+") ran into itself!");
-			} else {
-				//ran into another snake
-				int index1 = -1;
-				int index2 = -1;
-				for (int i = 0; i < playerList.size(); i++) {
-					if (playerList.get(i) != null) {
-						if (playerList.get(i).equals(snake)) {
-							index1 = i;
-						}
-						if (playerList.get(i).equals(gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]])) {
-							index2 = i;
-						}
-					}
-				}
-				if (index1 != -1 && index2 != -1) {
-					playerList.get(index1).Entity();
-					playerList.get(index2).Entity();
-					playerList.set(index1, null);
-					playerList.set(index2, null);
-				}
-				System.out.println("Snake Collision! ("+snake.toString()+") ran into ("+ gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].toString()+")!");
 			}
+
+			//Check if there's any snakes alive to determine if it's game over
 			boolean over = true;
-			for (Snake i : playerList) {
-				if (i != null) {
+			for (Snake s : playerList) {
+				if (s.getClient().getActive()) {
 					over = false;
+					//We've found at least one active player, so it's not game over!
+					break;
 				}
 			}
+
 			if (over) {
 				gameOver();
 			}
-			
-			//return;
 		}
 
 		gameBoard[tempx][tempy] = new Entity(this);
@@ -625,8 +343,6 @@ public class Game implements KeyListener, WindowListener {
 			gameBoard[snake.getPosition()[i][0]][snake.getPosition()[i][1]] = snake;
 		}
 
-
-
 		if (snake.getGrow() > 0) {
 			snake.incrementSize();
 			snake.setPositionX(i, tempx);
@@ -635,7 +351,6 @@ public class Game implements KeyListener, WindowListener {
 			snake.setGrow(snake.getGrow()-1);
 		}
 	}
-
 
 	private void createFood() {
 		//Find random empty space on gameBoard and put food there
@@ -648,11 +363,9 @@ public class Game implements KeyListener, WindowListener {
 		}
 	}
 
-
 	private void gameOver() {
 		game_over = true;
 	}
-
 
 	// / IMPLEMENTED FUNCTIONS
 	public void keyPressed(KeyEvent ke) {
@@ -745,7 +458,6 @@ public class Game implements KeyListener, WindowListener {
 
 
 		case KeyEvent.VK_ESCAPE:
-			running = false;
 			System.exit(0);
 			break;
 
@@ -754,20 +466,20 @@ public class Game implements KeyListener, WindowListener {
 				paused = true;
 			break;
 
-		case KeyEvent.VK_INSERT:
+		/*case KeyEvent.VK_INSERT:
 			if(!game_over){}
 			System.out.println("Game-Debug: creating non-cliented snake");
 			//Adds a snake to the board at a random position
 			//Snake snake = new Snake();
 			createSnake();
-			break;
+			break;*/
 		default:
 			// Unsupported key
 			break;
 		}
 	}
 	
-	private void randomDirection(int i) {
+	public void randomDirection(int i) {
 		autoTime += 1;
 		if (autoTime > 10) {
 			Random rand = new Random();
@@ -798,12 +510,8 @@ public class Game implements KeyListener, WindowListener {
 	}
 
 	public void windowClosing(WindowEvent we) {
-		running = false;
 		System.exit(0);
 	}
-
-
-
 
 	// UNNUSED IMPLEMENTED FUNCTIONS
 	public void keyTyped(KeyEvent ke) {}

@@ -1,20 +1,32 @@
 package SnakeGame;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * Application entry point
- * @author CQ
+ * @author CQ, RT
  */
 public class Main {
 	public static void main(String[] args) {
-		Server s = new Server();
+		
+		ExecutorService executor = Executors.newFixedThreadPool(105);
+		BoundedBuffer buffer = new BoundedBuffer(100);
+		Server s = new Server(buffer, executor);
+		
 		s.addUsers();
 
-		for (int i = 1; i < 101; i++) {
-			//For the moment we're only connecting 2 players
-			Client c = new Client(i);
-			s.connect(c);
+		executor.execute(s);
+
+		for (int i = 0; i < 104; i++) {
+			Client c = new Client(buffer, i);
+			if (s.connect(c)) {
+				executor.execute(c);
+			}
 		}
 
-		s.run();
+		executor.shutdown();
+		  
+		System.out.println("Finished all threads");
 	}
 }
