@@ -8,19 +8,17 @@ import java.util.concurrent.Executors;
  * @author CQ, RT
  */
 public class Main {
-	public static int serverMax = 104;
 	public static void main(String[] args) {
 		
-		
-		ExecutorService executor = Executors.newFixedThreadPool(serverMax);
-		BoundedBuffer buffer = new BoundedBuffer(serverMax);
+		ExecutorService executor = Executors.newFixedThreadPool(105);
+		BoundedBuffer buffer = new BoundedBuffer(100);
 		Server s = new Server(buffer, executor);
 		
 		s.addUsers();
 
 		executor.execute(s);
 
-		for (int i = 0; i < serverMax; i++) {
+		for (int i = 0; i < 104; i++) {
 			Client c = new Client(buffer, i);
 			if (s.connect(c)) {
 				executor.execute(c);

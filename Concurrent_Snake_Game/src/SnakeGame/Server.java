@@ -35,7 +35,7 @@ public class Server implements Runnable{
 	 * Adds 104 users to the database, if they don't already exist
 	 */
 	public void addUsers(){
-		for (int i = 1; i < 105; i++) {
+		for (int i = 0; i < 105; i++) {
 			if (!map.containsKey(i)) {
 				map.put(i, "Client:"+i);
 			}
@@ -92,26 +92,11 @@ public class Server implements Runnable{
 				game.cycleTime = System.currentTimeMillis();
 				int count = 0;
 				
-				//append the player moves to the buffer
-				buffer.append(new MoveData(game.P1_next_direction, 1));
-				//buffer.append(new MoveData(game.P2_next_direction, 2));
-				//buffer.append(new MoveData(game.P3_next_direction, 3));
-				//buffer.append(new MoveData(game.P4_next_direction, 4));
-				
 				for(Snake snake: game.playerList) {
 					if (!snake.getClient().getActive()) {
 						continue;
 					}
 
-					
-					//MoveData playerMove = buffer.take();
-					/*
-					if (playerMove.getId() == 1)
-					{
-						game.P1_direction = playerMove.getDirection();
-						game.moveSnake(game.playerList.get(1),game.P1_direction,playerMove.getDirection());
-					}
-					*/
 					if(snake.getClient().Id == 1){
 						//Directions for arrow keys
 						game.P1_direction = game.P1_next_direction;
