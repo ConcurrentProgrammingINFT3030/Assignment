@@ -3,7 +3,7 @@ package SnakeGame;
 import org.mapdb.*;
 
 import java.io.File;
-import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,9 +16,11 @@ public class Server implements Runnable{
 	private ConcurrentNavigableMap<Integer, String> map;
 	public Game game;
 
+	private ExecutorService executor;
 	private BoundedBuffer buffer;
 
-	public Server(BoundedBuffer b) {
+	public Server(BoundedBuffer b, ExecutorService executor) {
+		this.executor = executor;
 		buffer = b;
 		db = DBMaker.newFileDB(new File("snakes"))
 				.closeOnJvmShutdown()
@@ -46,34 +48,34 @@ public class Server implements Runnable{
 	 * Connects a client to the server
 	 * @param client the client to connect to the server
 	 */
-	public void connect(Client client) {
-		//This thread uses an anonymous runnable to authenticate the client
-		//() -> authenticate(client) is equivalent to:
-		/*
-			new Runnable() {
-				@Override
-				public void run() {
-					authenticate(client);
-				}
-			}
-		*/
-		new Thread(() -> authenticate(client)).start();
+	public boolean connect(Client client) {
+		//This thread uses an anonymous Callable<boolean> to authenticate the client
+		//We use a future to retrieve the result once the thread finishes
+		Future<Boolean> future = executor.submit(() -> authenticate(client));
+		try {
+			return future.get();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
 	 * Authenticates the client against the db before connecting them to the game
 	 * @param client the client to authenticate
 	 */
-	private void authenticate(Client client) {
+	private boolean authenticate(Client client) {
 		//Authenticate against DB.
 		//The clients username is their ID (1-104)
 		//and their password is "Client:{ID}"
 		if (map.get(client.Id).equals(client.toString())) {
 			game.createSnake(client);
+			return true;
 		}
-		else {
-			System.out.println("UNREGISTERED PLAYER ID: " + client.Id);
-		}
+
+		System.out.println("UNREGISTERED PLAYER ID: " + client.Id);
+		return false;
 	}
 
 	/**

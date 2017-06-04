@@ -12,7 +12,7 @@ public class Main {
 		
 		ExecutorService executor = Executors.newFixedThreadPool(105);
 		BoundedBuffer buffer = new BoundedBuffer(100);
-		Server s = new Server(buffer);
+		Server s = new Server(buffer, executor);
 		
 		s.addUsers();
 
@@ -20,8 +20,9 @@ public class Main {
 
 		for (int i = 1; i < 104; i++) {
 			Client c = new Client(buffer, i);
-			s.connect(c);
-			executor.execute(c);
+			if (s.connect(c)) {
+				executor.execute(c);
+			}
 		}
 
 		executor.shutdown();
