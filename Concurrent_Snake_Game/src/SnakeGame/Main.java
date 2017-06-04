@@ -16,19 +16,15 @@ public class Main {
 		
 		s.addUsers();
 
-		for (int i = 1; i < 101; i++) {
+		executor.execute(s);
+
+		for (int i = 1; i < 104; i++) {
 			Client c = new Client(buffer, i);
 			s.connect(c);
-			
-			Runnable client = new Client(buffer, i);
-			executor.execute(client);
+			executor.execute(c);
 		}
 
-		Thread server = new Thread(s);
-		server.start();
-		 while (!executor.isTerminated()) {
-			 
-		 }  
+		executor.shutdown();
 		  
 		System.out.println("Finished all threads");
 	}

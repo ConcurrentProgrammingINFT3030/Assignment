@@ -220,10 +220,6 @@ public class Game implements KeyListener, WindowListener {
 	 */
 	public void moveSnake(Snake snake, int direction, int next_direction) {
 
-		//Implement for 4 players
-
-		//direction = next_direction;
-
 		if(direction < 0) {
 			return;
 		}
@@ -271,67 +267,55 @@ public class Game implements KeyListener, WindowListener {
 		if(fut_y >= gameSize)
 			fut_y = 0;
 
-
 		//Food pickup
 		if(gameBoard[fut_x][fut_y].getType()==Type.FOOD){
 			snake.setGrow(snake.getGrow()+1);
 			createFood();
 		}
 
-
 		snake.setPositionX(0, fut_x);
 		snake.setPositionY(0, fut_y);
 
-		//run into self
-		if ((gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].getType() == Type.SNAKE)) {
-			if(snake.getID().equals(gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].getID())){
-				//ran into itself
-				int index = -1;
-				for (int i = 0; i < playerList.size(); i++) {
-					if (playerList.get(i) != null) {
-						if (playerList.get(i).equals(snake)) {
-							index = i;
-						}
-					}
+		//At this point the gameBoard hasn't been updated to hold the position of the moved snake,
+		//so we can check if it has collided with anything.
+
+		//This is the entity at the snake's new position
+		Entity ent = gameBoard[fut_x][fut_y];
+		if (ent.getType() == Type.SNAKE) {
+			Snake snek = (Snake)ent;
+			//Only check collisions on active snakes
+			if (snek.getClient().getActive()) {
+				if (snake.getID().equals(snek.getID())) {
+					//if the entity at the snake's new position is a snake with the same ID as our snake,
+					//our snake ran into itself so it needs to die
+					snek.getClient().setActive(false);
+					snek.Entity();
+
+					System.out.println("Snake Collision! (" + snake.toString() + ") ran into itself!");
+				} else {
+					//if the snakes have different IDs, our snake ran into a different snake,
+					//so now they both die. Good work snake.
+					snake.getClient().setActive(false);
+					snake.Entity();
+					snek.getClient().setActive(false);
+					snek.Entity();
+					System.out.println("Snake Collision! (" + snake.toString() + ") ran into (" + snek.toString() + ")!");
 				}
-				if (index != -1) {
-					playerList.get(index).Entity();
-					playerList.set(index, null);
-				}
-				System.out.println("Snake Collision! ("+snake.toString()+") ran into itself!");
-			} else {
-				//ran into another snake
-				int index1 = -1;
-				int index2 = -1;
-				for (int i = 0; i < playerList.size(); i++) {
-					if (playerList.get(i) != null) {
-						if (playerList.get(i).equals(snake)) {
-							index1 = i;
-						}
-						if (playerList.get(i).equals(gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]])) {
-							index2 = i;
-						}
-					}
-				}
-				if (index1 != -1 && index2 != -1) {
-					playerList.get(index1).Entity();
-					playerList.get(index1).getClient().setActive(false);
-					playerList.get(index2).Entity();
-					playerList.get(index2).getClient().setActive(false);
-				}
-				System.out.println("Snake Collision! ("+snake.toString()+") ran into ("+ gameBoard[snake.getPosition()[0][0]][snake.getPosition()[0][1]].toString()+")!");
 			}
+
+			//Check if there's any snakes alive to determine if it's game over
 			boolean over = true;
-			for (Snake i : playerList) {
-				if (i != null) {
+			for (Snake s : playerList) {
+				if (s.getClient().getActive()) {
 					over = false;
+					//We've found at least one active player, so it's not game over!
+					break;
 				}
 			}
+
 			if (over) {
 				gameOver();
 			}
-			
-			//return;
 		}
 
 		gameBoard[tempx][tempy] = new Entity(this);

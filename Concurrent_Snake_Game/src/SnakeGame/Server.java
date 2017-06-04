@@ -83,38 +83,41 @@ public class Server implements Runnable{
 	public void run() {
 		//This is the main loop of the server.
 		//It blocks the main thread and processes the game until it is exited
-		while (game.paused == false && game.game_over == false)
+		while (!game.paused && !game.game_over)
 		{
 			try
 			{
 				//System.out.println("Running");
 				game.cycleTime = System.currentTimeMillis();
 				int count = 0;
-				for(Snake i: game.playerList){
-					if(count == 0 && i != null){
+				for(Snake snake: game.playerList) {
+					if (!snake.getClient().getActive()) {
+						continue;
+					}
+
+					if(snake.getClient().Id == 0){
 						//Directions for arrow keys
 						game.P1_direction = game.P1_next_direction;
-						game.moveSnake(i,game.P1_direction,game.P1_next_direction);
-					} else if(count == 1 && i != null){
+						game.moveSnake(snake,game.P1_direction,game.P1_next_direction);
+					} else if(snake.getClient().Id == 1){
 						//Directions for WASD
 						game.P2_direction = game.P2_next_direction;
-						game.moveSnake(i,game.P2_direction,game.P2_next_direction);
-					} else if(count == 2 && i != null){
+						game.moveSnake(snake,game.P2_direction,game.P2_next_direction);
+					} else if(snake.getClient().Id == 2){
 						//Directions for NUMPAD
 						game.P3_direction = game.P3_next_direction;
-						game.moveSnake(i,game.P3_direction,game.P3_next_direction);
-					} else if(count == 3 && i != null){
+						game.moveSnake(snake,game.P3_direction,game.P3_next_direction);
+					} else if(snake.getClient().Id == 3){
 						//Directions for IJKL
 						game.P4_direction = game.P4_next_direction;
-						game.moveSnake(i,game.P4_direction,game.P4_next_direction);
-					} else if (count > 3 && i != null) {
+						game.moveSnake(snake,game.P4_direction,game.P4_next_direction);
+					} else if (snake.getClient().Id > 3) {
 						game.randomDirection(count);
 						game.directionList.set(count, buffer.take());
 						
-						game.moveSnake(game.playerList.get(count), game.directionList.get(count), game.next_directionList.get(count));
+						game.moveSnake(snake, game.directionList.get(count), game.next_directionList.get(count));
 					}
 					count+=1;
-					
 				}
 				game.renderGame();
 				game.cycleTime = System.currentTimeMillis() - game.cycleTime;
@@ -127,8 +130,6 @@ public class Server implements Runnable{
 					Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
 							ex);
 				}
-				
-				
 			}	
 			catch (RuntimeException e) {
 				System.out.println("Thread interrupted.");
