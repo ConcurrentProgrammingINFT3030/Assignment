@@ -64,7 +64,7 @@ public class Client implements Runnable{
 					lastDir = random;
 					
 					buffer.append(random);
-					Thread.sleep(10);
+					Thread.sleep(100);
 				}
 			}
 		      catch (Exception e) {

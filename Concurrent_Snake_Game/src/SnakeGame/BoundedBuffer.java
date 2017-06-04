@@ -16,6 +16,10 @@ public class BoundedBuffer {
 		B = new int[size];
 	}
 
+	/**
+	 * Appends a value to the end of the buffer in a thread-safe manner
+	 * @param value
+	 */
 	public synchronized void append(int value) {
 		System.out.println("Attempting Append");
 		while (Count == size) 
@@ -31,15 +35,18 @@ public class BoundedBuffer {
 			}
 			
 		}
-		//System.out.println("Completing Append");
 		B[InPtr] = value;
 		System.out.println("                      "+Thread.currentThread().getName()+" added "+value+" at "+InPtr+" Count was= " +Count);
 
 		InPtr = (InPtr + 1) % size;
 		Count = Count + 1;
-		//System.out.println("Append Finished");
 		this.notifyAll();
 	}
+
+	/**
+	 * Takes a value from the start of the buffer in a thread-safe manner
+	 * @return
+	 */
 	public synchronized int take() {
 		System.out.println("Attempting take");
 		while (Count==0) 

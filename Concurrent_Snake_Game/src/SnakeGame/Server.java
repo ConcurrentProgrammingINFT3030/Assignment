@@ -15,7 +15,6 @@ public class Server implements Runnable{
 	private DB db;
 	private ConcurrentNavigableMap<Integer, String> map;
 	public Game game;
-	private boolean running;
 
 	private BoundedBuffer buffer;
 
@@ -50,12 +49,14 @@ public class Server implements Runnable{
 	public void connect(Client client) {
 		//This thread uses an anonymous runnable to authenticate the client
 		//() -> authenticate(client) is equivalent to:
-		/* new Runnable() {
-			@Override
-			public void run() {
-				authenticate(client);
+		/*
+			new Runnable() {
+				@Override
+				public void run() {
+					authenticate(client);
+				}
 			}
-		}*/
+		*/
 		Thread t = new Thread(() -> authenticate(client));
 		t.start();
 	}
@@ -80,9 +81,8 @@ public class Server implements Runnable{
 	 * Runs the server. This method is blocking
 	 */
 	public void run() {
-		//This should be a blocking call so the main thread does not exit
-		//game.mainLoop is already blocking, but we should change this for concurrent-ness
-		//game.mainLoop();
+		//This is the main loop of the server.
+		//It blocks the main thread and processes the game until it is exited
 		while (game.paused == false && game.game_over == false)
 		{
 			try
@@ -94,38 +94,29 @@ public class Server implements Runnable{
 					if(count == 0 && i != null){
 						//Directions for arrow keys
 						game.P1_direction = game.P1_next_direction;
-						game.moveSnakeNEW(i,game.P1_direction,game.P1_next_direction);
+						game.moveSnake(i,game.P1_direction,game.P1_next_direction);
 					} else if(count == 1 && i != null){
 						//Directions for WASD
 						game.P2_direction = game.P2_next_direction;
-						game.moveSnakeNEW(i,game.P2_direction,game.P2_next_direction);
+						game.moveSnake(i,game.P2_direction,game.P2_next_direction);
 					} else if(count == 2 && i != null){
 						//Directions for NUMPAD
 						game.P3_direction = game.P3_next_direction;
-						game.moveSnakeNEW(i,game.P3_direction,game.P3_next_direction);
+						game.moveSnake(i,game.P3_direction,game.P3_next_direction);
 					} else if(count == 3 && i != null){
 						//Directions for IJKL
 						game.P4_direction = game.P4_next_direction;
-						game.moveSnakeNEW(i,game.P4_direction,game.P4_next_direction);
+						game.moveSnake(i,game.P4_direction,game.P4_next_direction);
 					} else if (count > 3 && i != null) {
-
-						/*
-						randomDirection(count);
-						directionList.set(count, next_directionList.get(count));
-						moveSnakeNEW(playerList.get(count), directionList.get(count), next_directionList.get(count));
-						*/
-
 						game.randomDirection(count);
-						//game.randomMovement(game.playerList.get(count));
 						game.directionList.set(count, buffer.take());
-						//game.next_directionList.set(count, game.next_directionList.get(count));
 						
-						game.moveSnakeNEW(game.playerList.get(count), game.directionList.get(count), game.next_directionList.get(count));
+						game.moveSnake(game.playerList.get(count), game.directionList.get(count), game.next_directionList.get(count));
 					}
 					count+=1;
 					
 				}
-				game.renderGameNEW();
+				game.renderGame();
 				game.cycleTime = System.currentTimeMillis() - game.cycleTime;
 				game.sleepTime = game.speed - game.cycleTime;
 				if (game.sleepTime < 0)

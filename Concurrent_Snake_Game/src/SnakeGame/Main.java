@@ -22,11 +22,6 @@ public class Main {
 			
 			Runnable client = new Client(buffer, i);
 			executor.execute(client);
-			
-			//replaced by threadpool
-			//Thread c1 = new Thread(c);
-			//c1.start();
-			
 		}
 
 		Thread server = new Thread(s);
@@ -35,6 +30,6 @@ public class Main {
 			 
 		 }  
 		  
-	        System.out.println("Finished all threads"); 
+		System.out.println("Finished all threads");
 	}
 }
