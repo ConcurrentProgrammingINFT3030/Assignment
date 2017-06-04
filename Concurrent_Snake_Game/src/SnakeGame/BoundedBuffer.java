@@ -21,22 +21,20 @@ public class BoundedBuffer {
 	 * @param value
 	 */
 	public synchronized void append(int value) {
-		System.out.println("Attempting Append");
 		while (Count == size) 
 		{
-			System.out.println("Waiting for append");
 			try 
 			{
-				this.wait();
+				System.out.println("Waiting for append");
+				this.wait(100);
 			} 
 			catch (InterruptedException e) 
 			{
-				System.out.println("Append interrupted");
 			}
-			
 		}
+		System.out.println("Appending");
 		B[InPtr] = value;
-		System.out.println("                      "+Thread.currentThread().getName()+" added "+value+" at "+InPtr+" Count was= " +Count);
+		//System.out.println("                      "+Thread.currentThread().getName()+" added "+value+" at "+InPtr+" Count was= " +Count);
 
 		InPtr = (InPtr + 1) % size;
 		Count = Count + 1;
@@ -48,21 +46,20 @@ public class BoundedBuffer {
 	 * @return
 	 */
 	public synchronized int take() {
-		System.out.println("Attempting take");
 		while (Count==0) 
 		{
-			System.out.println("Waiting for take");
 			try 
-			{ 
-				wait();
+			{
+				System.out.println("Waiting for take");
+				this.wait(100);
 			} catch (InterruptedException e) {}
 		}
-		System.out.println("Completing take");
+		System.out.println("Taking");
 		int direction = B[OutPtr];
-		System.out.println("                      "+Thread.currentThread().getName()+" removed "+direction+" at "+OutPtr+" Count was= "+Count);
+		//System.out.println("                      "+Thread.currentThread().getName()+" removed "+direction+" at "+OutPtr+" Count was= "+Count);
 		OutPtr = (OutPtr+1) % size;
 		Count = Count-1;
-		notifyAll();
+		this.notifyAll();
 		return direction;
 	}
 
