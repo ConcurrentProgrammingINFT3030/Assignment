@@ -18,11 +18,7 @@ public class BoundedBuffer {
 		C = new MoveData[size];
 	}
 
-	/**
-	 * Appends a value to the end of the buffer in a thread-safe manner
-	 * @param value
-	 */
-	public boolean ready()
+	public synchronized boolean ready()
 	{
 		if (Count + 5 < size)
 		{
@@ -33,6 +29,7 @@ public class BoundedBuffer {
 			return false;
 		}
 	}
+
 	public synchronized void append(MoveData value) {
 		while (Count == size) 
 		{

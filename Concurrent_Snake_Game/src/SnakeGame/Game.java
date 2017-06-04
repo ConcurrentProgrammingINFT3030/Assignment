@@ -212,6 +212,15 @@ public class Game implements KeyListener, WindowListener {
 
 	}
 
+	public Snake getSnake(int clientId){
+		for (Snake snake : playerList) {
+			if (snake.getClient().Id == clientId) {
+				return snake;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * 
 	 * @param snake: the snake to move

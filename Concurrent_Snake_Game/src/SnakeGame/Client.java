@@ -54,14 +54,8 @@ public class Client implements Runnable{
 		while (active)
 		{
 			try {
-				//Player moves are input from game -> server
-				if (Id <= 3)
-				{
-					//buffer.append(new MoveData(nextDirection,Id));
-				}
-				
 				//AI Moves randomly generated
-				else if (Id > 4)
+				if (Id >= 4)
 				{
 					Random randomDirection = new Random();
 					int random = randomDirection.nextInt(4);
@@ -83,7 +77,7 @@ public class Client implements Runnable{
 						buffer.append(new MoveData(random,Id));
 					}
 					
-					Thread.sleep(50);
+					Thread.sleep(100);
 				}
 			}
 			catch (Exception e) {
