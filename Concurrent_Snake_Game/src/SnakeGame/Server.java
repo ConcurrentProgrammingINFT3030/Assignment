@@ -57,8 +57,7 @@ public class Server implements Runnable{
 				}
 			}
 		*/
-		Thread t = new Thread(() -> authenticate(client));
-		t.start();
+		new Thread(() -> authenticate(client)).start();
 	}
 
 	/**

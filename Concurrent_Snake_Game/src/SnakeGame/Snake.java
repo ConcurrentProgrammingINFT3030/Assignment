@@ -13,17 +13,7 @@ import SnakeGame.Entity.Type;
  * @author JM
  *
  */
-public class Snake extends Entity implements Runnable{
-	
-	@Override
-	public void run() {
-		try{
-			System.out.println("Running");
-		}
-		catch(Exception e){
-			System.out.println("Error");
-		}
-	}
+public class Snake extends Entity {
 	
 	private int[][] position = null;
 	private int size = 0;

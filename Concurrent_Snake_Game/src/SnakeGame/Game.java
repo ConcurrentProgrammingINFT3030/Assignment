@@ -343,8 +343,6 @@ public class Game implements KeyListener, WindowListener {
 			gameBoard[snake.getPosition()[i][0]][snake.getPosition()[i][1]] = snake;
 		}
 
-
-
 		if (snake.getGrow() > 0) {
 			snake.incrementSize();
 			snake.setPositionX(i, tempx);
@@ -353,7 +351,6 @@ public class Game implements KeyListener, WindowListener {
 			snake.setGrow(snake.getGrow()-1);
 		}
 	}
-
 
 	private void createFood() {
 		//Find random empty space on gameBoard and put food there
@@ -366,11 +363,9 @@ public class Game implements KeyListener, WindowListener {
 		}
 	}
 
-
 	private void gameOver() {
 		game_over = true;
 	}
-
 
 	// / IMPLEMENTED FUNCTIONS
 	public void keyPressed(KeyEvent ke) {
@@ -517,9 +512,6 @@ public class Game implements KeyListener, WindowListener {
 	public void windowClosing(WindowEvent we) {
 		System.exit(0);
 	}
-
-
-
 
 	// UNNUSED IMPLEMENTED FUNCTIONS
 	public void keyTyped(KeyEvent ke) {}
