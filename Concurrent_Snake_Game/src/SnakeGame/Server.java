@@ -90,35 +90,51 @@ public class Server implements Runnable{
 			{
 				//System.out.println("Running");
 				game.cycleTime = System.currentTimeMillis();
-				int count = 0;
+
+				//add player moves to the buffer
+				if (game.playerList.size() > 3)
+				{
+					if (game.getSnake(0).getClient().getActive())
+					{
+						buffer.append(new MoveData(game.P1_next_direction, 0));
+					}
+					if (game.getSnake(1).getClient().getActive())
+					{
+						buffer.append(new MoveData(game.P2_next_direction, 1));
+					}
+					if (game.getSnake(2).getClient().getActive())
+					{
+						buffer.append(new MoveData(game.P3_next_direction, 2));
+					}
+					if (game.getSnake(3).getClient().getActive())
+					{
+						buffer.append(new MoveData(game.P4_next_direction, 3));
+					}
+				}
 
 				for(Snake snake: game.playerList) {
 					if (!snake.getClient().getActive()) {
 						continue;
 					}
 
-					if(snake.getClient().Id == 0){
-						//Directions for arrow keys
-						game.P1_direction = game.P1_next_direction;
-						game.moveSnake(snake,game.P1_direction,game.P1_next_direction);
-					} else if(snake.getClient().Id == 1){
-						//Directions for WASD
-						game.P2_direction = game.P2_next_direction;
-						game.moveSnake(snake,game.P2_direction,game.P2_next_direction);
-					} else if(snake.getClient().Id == 2){
-						//Directions for NUMPAD
-						game.P3_direction = game.P3_next_direction;
-						game.moveSnake(snake,game.P3_direction,game.P3_next_direction);
-					} else if(snake.getClient().Id == 3){
-						//Directions for IJKL
-						game.P4_direction = game.P4_next_direction;
-						game.moveSnake(snake,game.P4_direction,game.P4_next_direction);
-					}
-					else {
-						MoveData data = buffer.take();
+					//take the next player move from the buffer
+					MoveData data = buffer.take();
+
+					if (data.getId() == 0) {
+						game.P1_direction = data.getDirection();
+						game.moveSnake(game.playerList.get(0), data.getDirection(), -1);
+					} else if (data.getId() == 1) {
+						game.P2_direction = data.getDirection();
+						game.moveSnake(game.playerList.get(1), data.getDirection(), -1);
+					} else if (data.getId() == 2) {
+						game.P3_direction = data.getDirection();
+						game.moveSnake(game.playerList.get(2), data.getDirection(), -1);
+					} else if (data.getId() == 3) {
+						game.P4_direction = data.getDirection();
+						game.moveSnake(game.playerList.get(3), data.getDirection(), -1);
+					} else if (data.getId() > 3) {
 						game.moveSnake(game.getSnake(data.getId()), data.getDirection(), -1);
 					}
-					count+=1;
 				}
 
 
@@ -133,11 +149,11 @@ public class Server implements Runnable{
 					Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null,
 							ex);
 				}
-			}	
+			}
 			catch (RuntimeException e) {
 				System.out.println("Thread interrupted.");
 			}
 		}
-		
+
 	}
 }
