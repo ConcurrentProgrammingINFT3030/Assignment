@@ -122,16 +122,16 @@ public class Server implements Runnable{
 
 					if (data.getId() == 0) {
 						game.P1_direction = data.getDirection();
-						game.moveSnake(game.playerList.get(0), data.getDirection(), -1);
+						game.moveSnake(game.getSnake(0), data.getDirection(), -1);
 					} else if (data.getId() == 1) {
 						game.P2_direction = data.getDirection();
-						game.moveSnake(game.playerList.get(1), data.getDirection(), -1);
+						game.moveSnake(game.getSnake(1), data.getDirection(), -1);
 					} else if (data.getId() == 2) {
 						game.P3_direction = data.getDirection();
-						game.moveSnake(game.playerList.get(2), data.getDirection(), -1);
+						game.moveSnake(game.getSnake(2), data.getDirection(), -1);
 					} else if (data.getId() == 3) {
 						game.P4_direction = data.getDirection();
-						game.moveSnake(game.playerList.get(3), data.getDirection(), -1);
+						game.moveSnake(game.getSnake(3), data.getDirection(), -1);
 					} else if (data.getId() > 3) {
 						game.moveSnake(game.getSnake(data.getId()), data.getDirection(), -1);
 					}
