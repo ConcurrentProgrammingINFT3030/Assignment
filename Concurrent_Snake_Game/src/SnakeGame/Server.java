@@ -51,7 +51,7 @@ public class Server implements Runnable{
 	public boolean connect(Client client) {
 		//This thread uses an anonymous Callable<boolean> to authenticate the client
 		//We use a future to retrieve the result once the thread finishes
-		Future<Boolean> future = executor.submit(() -> authenticate(client));
+		Future<Boolean> future = executor.submit((Callable<Boolean>)() -> authenticate(client));
 		try {
 			return future.get();
 		}
