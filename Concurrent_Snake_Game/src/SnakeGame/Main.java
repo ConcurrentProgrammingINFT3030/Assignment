@@ -18,7 +18,7 @@ public class Main {
 
 		executor.execute(s);
 
-		for (int i = 0; i < 14; i++) {
+		for (int i = 0; i < 104; i++) {
 			Client c = new Client(buffer, i);
 			if (s.connect(c)) {
 				executor.execute(c);
